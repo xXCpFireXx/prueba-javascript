@@ -5,6 +5,8 @@ import {
   deleteEvent,
   getUsersSystem,
   registerUser,
+  getEnrollments,
+  postEnrollment,
 } from "./app/js/services.js";
 
 import {
@@ -14,7 +16,7 @@ import {
   notification,
 } from "./app/js/utils.js";
 
-/* =================== RUTAS SPA =================== */
+/* =================== SPA PATHS =================== */
 const routes = {
   "/": "../app/views/dashboard.html",
   "/dashboard/enrollments": "../app/views/enrollments.html",
@@ -28,37 +30,40 @@ const routes = {
 const isAuth = () => {
   return localStorage.getItem("Auth") === "true";
 };
-const isRegistering = () =>{
-    return localStorage.setItem("Register", "false");
-}
+const isRegistering = () => {
+  return localStorage.setItem("Register", "false");
+};
 const navigate = async (pathname) => {
-  if (!isAuth() && isRegistering()){
+  if (!isAuth() && isRegistering()) {
     pathname = "/login";
-}else if(isAuth() === false && isRegistering() === true){
+  } else if (isAuth() === false && isRegistering() === true) {
     pathname = "/register";
-}
-  const route = routes[pathname] || routes["/"];
-  console.log(route);
-  const html = await fetch(route).then((res) => res.text());
-  console.log(html);
-  document.getElementById("main-content").innerHTML = html;
-  history.pushState({}, "", pathname);
-  const aside = document.getElementById("aside-navbar");
-  if (pathname === "/login") setupLoginForm();
-  if (pathname === "/register") registerUsers();
-  renderUserProfile();
-  if (aside) {
-    if (pathname === "/register" || pathname === "/login"){
-         aside.style.display = "none"
-    }else{
-        aside.style.display = "flex"
-    }
   }
 
+  const route = routes[pathname] || routes["/"];
+  const html = await fetch(route).then((res) => res.text());
+  document.getElementById("main-content").innerHTML = html;
+  history.pushState({}, "", pathname);
+
+  const aside = document.getElementById("aside-navbar");
+
+  if (pathname === "/login") setupLoginForm();
+  if (pathname === "/register") registerUsers();
+
+  renderUserProfile();
+
+  if (aside) {
+    if (pathname === "/register" || pathname === "/login") {
+      aside.style.display = "none";
+    } else {
+      aside.style.display = "flex";
+    }
+  }
 
   if (pathname === "/dashboard/events") showEvents();
   if (pathname === "/dashboard/events/create") createNewEvent();
   if (pathname === "/dashboard/events/edit") editEvent();
+  if (pathname === "/dashboard/enrollments") showEnrollments();
 };
 
 document.body.addEventListener("click", (e) => {
@@ -69,16 +74,16 @@ document.body.addEventListener("click", (e) => {
   }
 });
 
-/* =================== USUARIOS =================== */
+/* =================== EVENTS =================== */
 
 const showEvents = async () => {
-  const users = await getEvents();
+  const events = await getEvents();
   const tbody = document.getElementById("list-events");
   if (!tbody) return;
 
   tbody.innerHTML = "";
 
-  users.forEach((event) => {
+  events.forEach((event) => {
     const row = document.createElement("tr");
     row.dataset.eventId = event.id;
 
@@ -93,7 +98,7 @@ const showEvents = async () => {
         <a href="#"><img class="btn-delete" data-event-id="${event.id}" src="../app/img/delete.svg"></a>
       </td>
       <td class="btn-enroll">
-        <button class="buttons" id="enroll">Enroll</button>
+        <button class="buttons enroll" id="enroll" data-event-id="${event.id}">Enroll</button>
       </td>
     `;
 
@@ -104,6 +109,31 @@ const showEvents = async () => {
   callEditEvent();
   callDeleteEvent();
   hideButtons();
+  EnrollEvent();
+};
+
+const showEnrollments = async () => {
+  const enrollments = await getEnrollments();
+  const userName = localStorage.getItem("userName");
+  const tbody = document.getElementById("list-enrollments");
+  if (!tbody) return;
+
+  const filtered = enrollments.filter((r) => r.user === userName);
+
+  tbody.innerHTML = "";
+
+  filtered.forEach((event) => {
+    const row = document.createElement("tr");
+
+    row.innerHTML = `
+      <td><img class="img-event" src="${event.img}"></td>
+      <td>${event.name}</td>
+      <td>${event.description}</td>
+      <td>${event.capacity}</td>
+      <td>${event.date}</td>
+    `;
+    tbody.appendChild(row);
+  });
 };
 
 const addEvents = async () => {
@@ -251,6 +281,40 @@ const callDeleteEvent = () => {
   });
 };
 
+const EnrollEvent = () => {
+  const buttons = document.querySelectorAll(".enroll");
+  const userName = localStorage.getItem("userName");
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      e.preventDefault();
+      const events = await getEvents();
+      const id = btn.dataset.eventId;
+
+      const filtered = events.filter((r) => r.id === id);
+
+      const ids = events.map((u) => Number(u.id));
+      const maxId = ids.length > 0 ? Math.max(...ids) : 0;
+      const newId = maxId + 1;
+      const newEnrollEvent = {
+        id: String(newId),
+        name: filtered.name,
+        description: filtered.description,
+        capacity: filtered.capacity,
+        date: filtered.date,
+        img: filtered.urlImg,
+        user: userName,
+      };
+      try {
+        await postEnrollment(newEnrollEvent)
+        notification("Event enrolled successfully!", "#a7c957", 3000);
+      } catch (error) {
+        notification("Error loading event data", "#e12c2c", 3000);
+      }
+      
+    });
+  });
+};
+
 /* =================== LOGIN =================== */
 
 const setupLoginForm = async () => {
@@ -279,66 +343,64 @@ const setupLoginForm = async () => {
     }
   });
 
-  btnRegister.addEventListener("click", (e)=>{
+  btnRegister.addEventListener("click", (e) => {
     e.preventDefault();
     navigate("/register");
     localStorage.setItem("Register", "true");
-  })
+  });
 };
 
-const registerUsers = async() =>{
-    const form = document.getElementById("formNewUser");
-    const btnCancel = document.getElementById("btn-cancel");
+const registerUsers = async () => {
+  const form = document.getElementById("formNewUser");
+  const btnCancel = document.getElementById("btn-cancel");
 
-    form.addEventListener("submit", async (e) =>{
-        e.preventDefault();
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-        const name = capitalizeFirstLetter(
-            document.getElementById("name").value.trim()
+    const name = capitalizeFirstLetter(
+      document.getElementById("name").value.trim()
+    );
+    const email = document.getElementById("email").value.trim();
+    const pass1 = document.getElementById("password").value;
+    const pass2 = document.getElementById("password2").value;
+
+    const users = await getUsersSystem();
+    const ids = users.map((u) => Number(u.id));
+    const maxId = ids.length > 0 ? Math.max(...ids) : 0;
+    const newId = maxId + 1;
+
+    if (pass1 === pass2) {
+      const newUser = {
+        id: String(newId),
+        email: email,
+        password: pass1,
+        role: "visitor",
+        name: name,
+      };
+
+      try {
+        await registerUser(newUser);
+        notification(
+          `User"${newUser.name}" added successfully!`,
+          "#a7c957",
+          3000
         );
-        const email = document.getElementById("email").value.trim();
-        const pass1 = document.getElementById("password").value;
-        const pass2 = document.getElementById("password2").value;
-
-        const users = await getUsersSystem();
-        const ids = users.map((u) => Number(u.id));
-        const maxId = ids.length > 0 ? Math.max(...ids) : 0;
-        const newId = maxId + 1;
-
-        if (pass1 === pass2){
-            const newUser = {
-                id: String(newId),
-                email:email,
-                password:pass1,
-                role:"visitor",
-                name: name
-                };
-
-            try {
-                await registerUser(newUser);
-                notification(
-                `User"${newUser.name}" added successfully!`,
-                "#a7c957",
-                3000
-                );
-                navigate("/login");
-                
-        } catch {
-            notification("Error adding user", "#e12c2c", 3000);
-        }
-        localStorage.setItem("Register", "false");
-        }else{
-            notification("Password isn't the same", "#e12c2c", 3000);
-        }
-
-    })
-
-    btnCancel.addEventListener("click", (e)=>{
-        e.preventDefault()
-        localStorage.setItem("Register", "false");
         navigate("/login");
-    })
-}
+      } catch {
+        notification("Error adding user", "#e12c2c", 3000);
+      }
+      localStorage.setItem("Register", "false");
+    } else {
+      notification("Password isn't the same", "#e12c2c", 3000);
+    }
+  });
+
+  btnCancel.addEventListener("click", (e) => {
+    e.preventDefault();
+    localStorage.setItem("Register", "false");
+    navigate("/login");
+  });
+};
 
 const renderUserProfile = () => {
   const nameProfile = document.querySelector(".name-profile");
@@ -369,19 +431,18 @@ const hideButtons = () => {
   const buttonsActionsTbody = document.querySelectorAll(".actions-tbody");
   const buttonAddEvent = document.getElementById("add-new-event");
   const btnsEnroll = document.querySelectorAll(".btn-enroll");
-  const liEnrollments = document.getElementById("enrollments")
+  const liEnrollments = document.getElementById("enrollments");
   if (role === "admin") {
     buttonsActions.style.display = "block";
     buttonAddEvent.style.display = "block";
-    liEnrollments.style.display = "none"
+    liEnrollments.style.display = "none";
     buttonsActionsTbody.forEach((btn) => {
       btn.style.display = "block";
     });
-    
-    btnsEnroll.forEach((btnEnroll) =>{
-        btnEnroll.style.display = "none"
-    })
 
+    btnsEnroll.forEach((btnEnroll) => {
+      btnEnroll.style.display = "none";
+    });
   } else {
     buttonsActions.style.display = "none";
     buttonAddEvent.style.display = "none";

@@ -1,5 +1,4 @@
 // =================== SERVICIOS PARA API (json-server) ===================
-// Estas funciones permiten la comunicación con una base de datos simulada mediante JSON Server
 
 // URL base para la colección de eventos
 const BASE_URL_EVENT = "http://localhost:3000/event";
@@ -7,7 +6,7 @@ const BASE_URL_EVENT = "http://localhost:3000/event";
 // URL base para los usuarios del sistema (usado en el login)
 const BASE_URL_SYSTEM = "http://localhost:3000/user";
 
-
+const BASE_URL_ENROLLMENTS = "http://localhost:3000/enrollments";
 // =================== FUNCIONES CRUD ===================
 
 // GET: Obtener todos los eventos registrados en la "base de datos"
@@ -89,6 +88,31 @@ export const registerUser = async (user) => {
     return await res.json(); // Retorna la respuesta procesada
   } catch (error) {
     console.error("Error registering user:", error);
+    throw error; // Lanza el error para manejarlo externamente
+  }
+};
+
+/* ENROLLMENTS */
+export const getEnrollments = async () => {
+  try {
+    const res = await fetch(BASE_URL_ENROLLMENTS); // Realiza la solicitud GET
+    return await res.json(); // Convierte la respuesta en formato JSON
+  } catch (error) {
+    console.error("Error getting events:", error);
+    return []; // Retorna arreglo vacío si ocurre error
+  }
+};
+
+export const postEnrollment = async (event) => {
+  try {
+    const res = await fetch(BASE_URL_ENROLLMENTS, {
+      method: "POST", // Método HTTP para crear recurso
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(event), // Convierte el objeto usuario a JSON
+    });
+    return await res.json(); // Retorna la respuesta procesada
+  } catch (error) {
+    console.error("Error registering event:", error);
     throw error; // Lanza el error para manejarlo externamente
   }
 };
