@@ -7,7 +7,7 @@
 }
 
 :root {
-  --navbar-background: #f2eae1;
+  --navbar-background: #EFE1F2;
   --pink: #b600fe;
   --purple: #6a00fe;
 }
@@ -25,21 +25,22 @@ body {
 }
 
 /* Oculta todo el contenido mientras se verifica la sesión */
-body.loading #aside-navbar,
+/* body.loading #aside-navbar,
 body.loading #main-content {
   display: none;
-}
+} */
 
 /* Opcional: muestra fondo blanco mientras carga */
-body.loading {
+/* body.loading {
   background-color: #fff;
-}
+} */
 
 
 .container {
   max-width: 100rem;
   width: 90%;
   margin: 0 auto;
+  text-align: center;
 }
 
 .main-content {
@@ -80,11 +81,6 @@ body.loading {
   text-align: center;
 }
 
-.title {
-  text-shadow: -1px -1px 0 var(--pink), 1px -1px 0 var(--pink),
-    -1px 1px 0 var(--pink), 1px 1px 0 var(--pink);
-}
-
 .role-profile {
   color: var(--pink);
 }
@@ -115,15 +111,20 @@ body.loading {
   cursor: pointer;
 }
 
+.container-nav ul li a{
+  text-decoration: none;
+  color: black;
+}
+
 /* Lists Users */
 
-.head-list-users {
+/* .head-list-users {
   display: flex;
   list-style: none;
   gap: 2rem;
   margin: 1rem;
 }
-
+ */
 td {
   padding: 1rem;
 }
@@ -179,4 +180,33 @@ td {
 .login button:hover {
   transform: scale(1.02);
   transition: 0.06s ease-in-out;
+}
+
+.btn-edit, .btn-delete{
+  width: 2.5rem;
+}
+
+.img-event{
+  width: 6rem;
+  border-radius: 1rem;
+}
+
+.head-events{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.buttons{
+  padding: 0.8rem;
+  font-size: 1rem;
+  width: 100%;
+  max-width: 10rem;
+  border-radius: 0.5rem;
+  border: none;
+  background-color: var(--purple);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
 }
