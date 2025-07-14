@@ -1,0 +1,10 @@
+{
+  "user": [
+    { "id": "1", "user": "admin", "password": "1234", "role": "admin", "name": "Administrator" },
+    { "id": "2", "user": "cpfire", "password": "1234", "role": "visitor", "name": "Cristian" }
+  ],
+  "event": [
+    { "id": "1", "name": "Karthi","description":"Lorem umsum lorem imsum lorem imsum", "capacity": 12 , "date": "08-Dec-2021","img":"https://upload.wikimedia.org/wikipedia/en/7/79/Music_of_the_Spheres_World_Tour_Poster.png" }
+  ],
+  "reservations": []
+}
