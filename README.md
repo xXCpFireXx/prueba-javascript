@@ -1,13 +1,22 @@
-##  Comenzar
+## 💁‍♂️ Personal Information
+* 🙋‍♂️ Cristian Alejandro Penagos Suarez
+* 📚 Clan **Gosling**
+* 📧 suarezalejo26@gmail.com
+* 🆔 1192812828
 
-### 1. Instalar dependencias
 
-```bash
+##  Start
+### 1. Install dependencies
+```
 npm install
 ```
+### 2. Start json server
+```
+json-server --watch db.json
+```
 
-### 2. Levantar el servidor de desarrollo
+### 3. Deploy server
 
-```bash
+```
 npm run dev
 ```

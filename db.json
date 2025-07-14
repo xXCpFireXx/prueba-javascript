@@ -2,23 +2,30 @@
   "user": [
     {
       "id": "1",
-      "user": "admin",
+      "email": "admin@gmail.com",
       "password": "1234",
       "role": "admin",
       "name": "Administrator"
     },
     {
       "id": "2",
-      "user": "cpfire",
+      "email": "cpfire@gmial.com",
       "password": "1234",
       "role": "visitor",
       "name": "Cristian"
+    },
+    {
+      "id": "5",
+      "email": "dfsfds@gmail.com",
+      "password": "1234",
+      "role": "visitor",
+      "name": "Camila acosta ve"
     }
   ],
   "event": [
     {
       "id": "1",
-      "name": "Karthi 2025",
+      "name": "Karthi 2023",
       "description": "Lorem umsum lorem imsum lorem imsum",
       "capacity": 25,
       "date": "08-Dec-2021",
@@ -28,10 +35,20 @@
       "id": "2",
       "name": "fiesta del rio 2025",
       "description": "fiestas",
-      "capacity": 32,
+      "capacity": 33,
       "date": "28-Aug-2025",
       "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUGUnK6u1qokfESNX_OaME4vM0fCnVd0v5awXT9i4GsWetdwU-uxP6ClenDt9tcyk-Ocg&usqp=CAU"
     }
   ],
-  "reservations": []
+  "enrollments": [
+    {
+      "id": "1",
+      "name": "Karthi 2025",
+      "description": "Lorem umsum lorem imsum lorem imsum",
+      "capacity": 25,
+      "date": "08-Dec-2021",
+      "img": "https://upload.wikimedia.org/wikipedia/en/7/79/Music_of_the_Spheres_World_Tour_Poster.png",
+      "user": "admin"
+    }
+  ]
 }
